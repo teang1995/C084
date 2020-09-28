@@ -1,4 +1,5 @@
-import sys 
+import sys
+
 
 class SimpleCPU:
     '''
@@ -12,11 +13,105 @@ class SimpleCPU:
 
     def execute(self, program):
         # Implement this one
-        pass
+        memory = eval(program[0].replace("\n", ""))
+        self.memory = memory
+        programs = []
+        for process in program[1:]:
+            process = process.replace("\n", "")
+            programs.append(process)
+
+        for process in programs:
+            '''
+            split_list[0] : 명령어
+            split_list[1]~[3] : parameters
+            '''
+            split_list = process.split(" ")
+            if split_list[0] == "ld":
+                self.ld(int(split_list[1]), int(split_list[2]))
+                self.ip += 1
+
+            if split_list[0] == "add":
+                dst = int(split_list[1].replace("$", ""))
+                src1 = int(split_list[2].replace("$", ""))
+                src2 = int(split_list[3].replace("$", ""))
+                self.add(dst, src1, src2)
+                self.ip += 1
+
+            if split_list[1] == "ble":
+                src1 = int(split_list[1].replace("$", ""))
+                src2 = int(split_list[2].replace("$", ""))
+                dst = int(split_list[3])
+                self.ble(src1, src2, dst)
+                self.ip += 1
+
+            if split_list[0] == "st":
+                src = int(split_list[1].replace("$", ""))
+                dst = int(split_list[2])
+                self.st(src, dst)
+                self.ip += 1
+
+    def ld(self, src, dst):
+        # 인덱스 오류 처리 필요
+        self.registers[dst] = self.memory[src]
+
+    def st(self, src, dst):
+        # 인덱스 오류 처리 필요
+        self.memory[dst] = self.regiterss(src)
+
+    def add(self, dst, src1, src2):
+        # registers[dst] = registers[src1] + registers[src2]
+        # 인덱스 오류 처리 필요
+        self.registers[dst] = self.registers[src1] + self.registers[src2]
+
+    def sub(self, dst, src1, src2):
+        # registers[dst] = registers[src1] - registers[src2]
+        # 인덱스 오류 처리 필요
+        self.registers[dst] = self.registers[src1] - self.registers[src2]
+
+    def div(self, dst, src1, src2):
+        # registers[dst] = registers[src1] / registers[src2]
+        # 인덱스 오류 처리 필요
+        # division by zero 오류 처리 필요
+        # 자료형은 어떻게 되더라?
+        self.registers[dst] = self.registers[src1] / self.registers[src2]
+
+    def mul(self, dst, src1, src2):
+        # registers[dst] = registers[src1] * registers[src2]
+        # 인덱스 오류 처리 필요
+        # 자료형은 어떻게 되더라?
+        self.registers[dst] = self.registers[src1] * self.registers[src2]
+
+    def jump(self, idx):
+        # ip <- idx
+        # 인덱스 오류 처리 필요
+        self.ip = idx
+
+    def beq(self, src1, src2, idx):
+        # if src1 == src2 then ip <- idx
+        # 인덱스 오류 처리 필요
+        if self.regiters[src1] == self.registers[src2]:
+            self.ip = idx
+
+    def ble(self, src1, src2, idx):
+        # if registers[src1] <= registers[src2] then ip <- idx
+        # 인덱스 오류 처리 필요
+        if self.registers[src1] <= self.registers[src2]:
+            self.ip = idx
+
+    def bne(self, src1, src2, idx):
+        # if registers[src1] != registers[src2] then ip <- idx
+        # 인덱스 오류 처리 필요
+        if self.registers[src1] != self.registers[src2]:
+            self.ip = idx
 
     def print_status(self):
-        # Implement this one
-        pass
+        print("IP : {}".format(self.ip))
+        print("Register File : ")
+        for i, register in enumerate(self.registers):
+            print("${} : {}".format(i, register))
+        print("Memory : ")
+        for i, data in enumerate(self.memory):
+            print("[{}] : {}".format(i, data))
 
 # 상수 선언
 NUM_REGS = 5
@@ -39,6 +134,6 @@ if __name__ == '__main__':
         data = f.readlines() 
 
     # 이 부분은 예시로 제공된 코드입니다. 실제로 동작하지 않으니 동작하도록 수정해서 사용해야 합니다.
-    # cpu = SimpleCPU() 
-    # cpu.execute(data)
-    # cpu.print_status()    
+    cpu = SimpleCPU(NUM_REGS, MEM_SZ)
+    cpu.execute(data)
+    cpu.print_status()
