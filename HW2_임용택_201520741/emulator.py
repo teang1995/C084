@@ -8,55 +8,62 @@ class SimpleCPU:
     '''
     def __init__(self, num_regs, mem_size):
         self.ip = 0
-        self.registers = [0 for _ in range(NUM_REGS)] # for saving data
-        self.memory = [0 for _ in range(MEM_SZ)] # for saving data
+        self.registers = [0 for _ in range(num_regs)]  # for saving data at register
+        self.memory = [0 for _ in range(mem_size)]  # for saving data at memory
+
+    def process_line(self, process):
+        split_list = process.split(" ")
+        if split_list[0] == "ld":
+            self.ld(int(split_list[1]), int(split_list[2]))
+            self.ip += 1
+
+        if split_list[0] == "add":
+            dst = int(split_list[1])
+            src1 = int(split_list[2])
+            src2 = int(split_list[3])
+            self.add(dst, src1, src2)
+            self.ip += 1
+
+        if split_list[0] == "ble":
+            self.ip += 1
+            src1 = int(split_list[1])
+            src2 = int(split_list[2])
+            dst = int(split_list[3])
+            self.ble(src1, src2, dst)
+
+        if split_list[0] == "st":
+            src = int(split_list[1])
+            dst = int(split_list[2])
+            self.st(src, dst)
+            self.ip += 1
 
     def execute(self, program):
-        # Implement this one
-        memory = eval(program[0].replace("\n", ""))
+        memory = eval(program[0].replace("\n", ""))  # eval 안 쓰는 게 좋은데 다른 방법 찾기.
         self.memory = memory
+
         programs = []
         for process in program[1:]:
             process = process.replace("\n", "")
+            process = process.replace(",", "")
+            process = process.replace("$", "")
             programs.append(process)
 
-        for process in programs:
-            '''
-            split_list[0] : 명령어
-            split_list[1]~[3] : parameters
-            '''
-            split_list = process.split(" ")
-            if split_list[0] == "ld":
-                self.ld(int(split_list[1]), int(split_list[2]))
-                self.ip += 1
+        # print(programs)  # DEBUG
+        while True:
+            # print(self.ip)  # DEBUG
+            if self.ip == len(programs) - 1:
+                self.process_line(programs[self.ip])
+                break
+            else:
+                self.process_line(programs[self.ip])
 
-            if split_list[0] == "add":
-                dst = int(split_list[1].replace("$", ""))
-                src1 = int(split_list[2].replace("$", ""))
-                src2 = int(split_list[3].replace("$", ""))
-                self.add(dst, src1, src2)
-                self.ip += 1
-
-            if split_list[1] == "ble":
-                src1 = int(split_list[1].replace("$", ""))
-                src2 = int(split_list[2].replace("$", ""))
-                dst = int(split_list[3])
-                self.ble(src1, src2, dst)
-                self.ip += 1
-
-            if split_list[0] == "st":
-                src = int(split_list[1].replace("$", ""))
-                dst = int(split_list[2])
-                self.st(src, dst)
-                self.ip += 1
-
-    def ld(self, src, dst):
+    def ld(self, dst, src):
         # 인덱스 오류 처리 필요
         self.registers[dst] = self.memory[src]
 
     def st(self, src, dst):
         # 인덱스 오류 처리 필요
-        self.memory[dst] = self.regiterss(src)
+        self.memory[dst] = self.registers[src]
 
     def add(self, dst, src1, src2):
         # registers[dst] = registers[src1] + registers[src2]
@@ -89,7 +96,7 @@ class SimpleCPU:
     def beq(self, src1, src2, idx):
         # if src1 == src2 then ip <- idx
         # 인덱스 오류 처리 필요
-        if self.regiters[src1] == self.registers[src2]:
+        if self.registers[src1] == self.registers[src2]:
             self.ip = idx
 
     def ble(self, src1, src2, idx):
@@ -117,8 +124,8 @@ class SimpleCPU:
 NUM_REGS = 5
 MEM_SZ = 10
 
-# 본 if문은 c의 main함수와 유사한 역할을 합니다. 
-# 프로그램을 파이썬 인터프리터로 실행할 경우에 실행되는 블락입니다. 
+# 본 if문은 c의 main함수와 유사한 역할을 합니다.
+# 프로그램을 파이썬 인터프리터로 실행할 경우에 실행되는 블락입니다.
 # 다른 파이썬 프로그램이 본 파일을 라이브러리 형태로 참조하고자 할 경우 실행되지 않습니다.
 if __name__ == '__main__':
     # sys.argv는 프로그램의 인자를 가진 리스트입니다.
@@ -131,7 +138,7 @@ if __name__ == '__main__':
     with open(sys.argv[1]) as f:
         # 텍스트 파일의 데이터를 전부 읽어오는 코드 입니다.
         # 이 부분은 for loop 등 기타 방법으로 변형해서 사용해도 됩니다.
-        data = f.readlines() 
+        data = f.readlines()
 
     # 이 부분은 예시로 제공된 코드입니다. 실제로 동작하지 않으니 동작하도록 수정해서 사용해야 합니다.
     cpu = SimpleCPU(NUM_REGS, MEM_SZ)
