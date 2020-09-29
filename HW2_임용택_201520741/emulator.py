@@ -1,6 +1,18 @@
 import sys
 
 
+class SimpleCPUREGIndexError(Exception):
+    pass
+
+
+class SimpleCPUIPIndexError(Exception):
+    pass
+
+
+class SimpleCPUMEMIndexError(Exception):
+    pass
+
+
 class SimpleCPU:
     '''
         SimpleCPU 모듈
@@ -14,15 +26,15 @@ class SimpleCPU:
     def process_line(self, process):
         split_list = process.split(" ")
         if split_list[0] == "ld":
-            self.ld(int(split_list[1]), int(split_list[2]))
             self.ip += 1
+            self.ld(int(split_list[1]), int(split_list[2]), process)
 
         if split_list[0] == "add":
+            self.ip += 1
             dst = int(split_list[1])
             src1 = int(split_list[2])
             src2 = int(split_list[3])
             self.add(dst, src1, src2)
-            self.ip += 1
 
         if split_list[0] == "ble":
             self.ip += 1
@@ -32,10 +44,10 @@ class SimpleCPU:
             self.ble(src1, src2, dst)
 
         if split_list[0] == "st":
+            self.ip += 1
             src = int(split_list[1])
             dst = int(split_list[2])
             self.st(src, dst)
-            self.ip += 1
 
     def execute(self, program):
         memory = eval(program[0].replace("\n", ""))  # eval 안 쓰는 게 좋은데 다른 방법 찾기.
@@ -57,10 +69,16 @@ class SimpleCPU:
             else:
                 self.process_line(programs[self.ip])
 
-    def ld(self, dst, src):
+    def ld(self, dst, src, process):
         # 인덱스 오류 처리 필요
-        self.registers[dst] = self.memory[src]
+        try:
+            if dst < 0 or dst > 5:
+                raise SimpleCPUREGIndexError("SimpleCPU_REGIndexError | IP:{} | {} | {} | 0, 4"
+                                             .format(self.ip, process, dst))
+            self.registers[dst] = self.memory[src]
+        except SimpleCPUREGIndexError as e:
 
+            print(e)
     def st(self, src, dst):
         # 인덱스 오류 처리 필요
         self.memory[dst] = self.registers[src]
