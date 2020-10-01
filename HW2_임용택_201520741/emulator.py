@@ -73,8 +73,7 @@ class SimpleCPU:
         # 인덱스 오류 처리 필요
         try:
             if dst < 0 or dst > 5:
-                raise SimpleCPUREGIndexError("SimpleCPU_REGIndexError | IP:{} | {} | {} | 0, 4"
-                                             .format(self.ip, process, dst))
+                raise SimpleCPUREGIndexError("SimpleCPU_REGIndexError | IP:{} | {} | {} | 0, 4".format(self.ip, process, dst))
             self.registers[dst] = self.memory[src]
         except SimpleCPUREGIndexError as e:
 

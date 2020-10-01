@@ -1,4 +1,5 @@
-with open("example.txt") as f:
-    data = f.readlines()
+a = [0] * 10
 
-print(data)
+print(a)
+a[0] = 1
+print(a)
