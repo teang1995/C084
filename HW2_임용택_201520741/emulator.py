@@ -47,7 +47,7 @@ class SimpleCPU:
             self.ip += 1
             src = int(split_list[1])
             dst = int(split_list[2])
-            self.st(src, dst)
+            self.st(src, dst, process)
 
     def execute(self, program):
         memory = eval(program[0].replace("\n", ""))  # eval 안 쓰는 게 좋은데 다른 방법 찾기.
@@ -72,24 +72,44 @@ class SimpleCPU:
     def ld(self, dst, src, process):
         # 인덱스 오류 처리 필요
         try:
-            if dst < 0 or dst > 5:
+            if dst < 0 or dst > 4:
                 raise SimpleCPUREGIndexError("SimpleCPU_REGIndexError | IP:{} | {} | {} | 0, 4".format(self.ip, process, dst))
             self.registers[dst] = self.memory[src]
         except SimpleCPUREGIndexError as e:
-
             print(e)
-    def st(self, src, dst):
-        # 인덱스 오류 처리 필요
-        self.memory[dst] = self.registers[src]
 
-    def add(self, dst, src1, src2):
+    def st(self, src, dst, process):
+        # 인덱스 오류 처리 필요
+        try:
+            if src < 0 or src > 9:
+                raise SimpleCPUMEMIndexError("SimpleCPU_MEMIndexError | IP:{} | {} | {} | 0, 9".format(self.ip, process, src))
+            elif dst < 0 or dst > 4:
+                raise SimpleCPUREGIndexError("SimpleCPU_REGIndexError | IP:{} | {} | {} | 0, 4".format(self.ip, process, dst))
+            self.memory[dst] = self.registers[src]
+        except Exception as e:
+            print(e)
+
+    def add(self, dst, src1, src2, process):
         # registers[dst] = registers[src1] + registers[src2]
-        # 인덱스 오류 처리 필요
-        self.registers[dst] = self.registers[src1] + self.registers[src2]
+        try:
+            if dst < 0 or dst > 4:
+                raise SimpleCPUREGIndexError(
+                    "SimpleCPU_REGIndexError | IP:{} | {} | {} | 0, 4".format(self.ip, process, dst))
+            elif src1 < 0 or src1 > 4:
+                raise SimpleCPUMEMIndexError("SimpleCPU_MEMIndexError | IP:{} | {} | {} | 0, 4".format(self.ip, process, src1))
+            elif src2 < 0 or src2 > 4:
+                raise SimpleCPUMEMIndexError("SimpleCPU_MEMIndexError | IP:{} | {} | {} | 0, 4".format(self.ip, process, src2))
+            self.registers[dst] = self.registers[src1] + self.registers[src2]
+        except Exception as e:
+            print(e)
 
-    def sub(self, dst, src1, src2):
+    def sub(self, dst, src1, src2, process):
         # registers[dst] = registers[src1] - registers[src2]
-        # 인덱스 오류 처리 필요
+        try:
+            if dst < 0 or dst > 4:
+                raise SimpleCPUREGIndexError(
+                    "SimpleCPU_REGIndexError | IP:{} | {} | {} | 0, 4".format(self.ip, process, dst))
+            elif
         self.registers[dst] = self.registers[src1] - self.registers[src2]
 
     def div(self, dst, src1, src2):
