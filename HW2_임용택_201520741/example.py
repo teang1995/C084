@@ -1,5 +1,3 @@
-a = [0] * 10
-
-print(a)
-a[0] = 1
-print(a)
+a= [1,2,3,34,5]
+for ele in a:
+    print(ele)
