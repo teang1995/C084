@@ -1,5 +1,3 @@
-a = [0] * 10
+import numpy as np
 
-print(a)
-a[0] = 1
-print(a)
+a = np.arange(1, 2)
