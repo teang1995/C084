@@ -1,3 +1,5 @@
-import numpy as np
+a = [0] * 10
 
-a = np.arange(1, 2)
+print(a)
+a[0] = 1
+print(a)
